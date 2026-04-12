@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metanoia Creature Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="app-title">Metanoia</span>
+      <span class="app-subtitle">Creature Creator</span>
+    </div>
+    <div class="header-controls">
+      <span class="unsaved-dot" id="unsaved-dot" hidden aria-label="Unsaved changes">●</span>
+      <button class="btn" id="btn-new">New</button>
+      <label class="btn" for="file-input">Open</label>
+      <input type="file" id="file-input" accept=".json" hidden>
+      <button class="btn" id="btn-save">Save</button>
+      <button class="btn btn-accent" id="btn-export">Export</button>
+      <button class="btn-icon" id="btn-theme" aria-label="Toggle theme">☀</button>
+    </div>
+  </header>
+
+  <main class="sheet-grid">
+
+    <div class="sheet-col">
+      <div class="sheet-stack">
+
+        <section class="sheet-section" id="section-header">
+          <h2>Header</h2>
+          <div class="header-fields">
+            <div class="field field-wide">
+              <label for="hdr-name">Name</label>
+              <input type="text" id="hdr-name" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="hdr-category">Category</label>
+              <select id="hdr-category"></select>
+            </div>
+            <div class="field">
+              <label for="hdr-faction">Faction</label>
+              <input type="text" id="hdr-faction" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="hdr-realm">Realm</label>
+              <select id="hdr-realm"></select>
+            </div>
+            <div class="field">
+              <label for="hdr-xp-total">XP Total</label>
+              <input type="number" id="hdr-xp-total" min="0" step="1">
+            </div>
+            <div class="field">
+              <label>XP Spent</label>
+              <div class="readonly-value" id="hdr-xp-spent">0</div>
+            </div>
+            <div class="field">
+              <label>XP Remaining</label>
+              <div class="readonly-value" id="hdr-xp-remaining">0</div>
+            </div>
+            <div class="field field-wide">
+              <label>Polarities</label>
+              <div class="polarity-list" id="polarity-list"></div>
+              <p class="polarity-empty" id="polarity-empty">No polarities declared.</p>
+              <button type="button" class="btn btn-add" id="btn-add-polarity">+ Add Polarity</button>
+            </div>
+          </div>
+        </section>
+
+        <dialog class="app-dialog" id="polarity-dialog">
+          <form method="dialog" class="app-dialog-form">
+            <h3 id="polarity-dialog-title">Add Polarity</h3>
+            <div class="field">
+              <label for="polarity-dialog-name">Name</label>
+              <input type="text" id="polarity-dialog-name" autocomplete="off" placeholder="Electromagnetism" required>
+            </div>
+            <div class="field">
+              <label for="polarity-dialog-note">Usage Note</label>
+              <textarea id="polarity-dialog-note" rows="2" placeholder="used in melee and terrain control"></textarea>
+            </div>
+            <div class="app-dialog-actions">
+              <button type="button" class="btn" id="polarity-dialog-cancel">Cancel</button>
+              <button type="submit" class="btn btn-accent" id="polarity-dialog-save" value="save">Add</button>
+            </div>
+          </form>
+        </dialog>
+
+        <section class="sheet-section" id="section-core-stats">
+          <h2>Core Stats</h2>
+          <div class="core-stats-fields">
+            <div class="field">
+              <label>Strain Max</label>
+              <div class="readonly-value" id="cs-strain-max">4</div>
+            </div>
+            <div class="field">
+              <label>Stride</label>
+              <div class="readonly-value" id="cs-stride">2</div>
+            </div>
+            <div class="field">
+              <label for="cs-wound-slots">Wound Slots</label>
+              <input type="number" id="cs-wound-slots" min="0" step="1" placeholder="2">
+            </div>
+            <div class="field field-wide">
+              <label for="cs-range">Range</label>
+              <input type="text" id="cs-range" autocomplete="off">
+            </div>
+            <div class="field field-wide">
+              <label for="cs-damage-types">Damage Types</label>
+              <input type="text" id="cs-damage-types" autocomplete="off">
+            </div>
+          </div>
+        </section>
+
+        <section class="sheet-section" id="section-xp-ledger">
+          <h2>XP Ledger</h2>
+          <div class="xp-ledger-pool">
+            <div class="field">
+              <label for="xp-strain">Strain XP</label>
+              <input type="number" id="xp-strain" min="0" step="1">
+            </div>
+            <div class="field">
+              <label for="xp-stride">Stride XP</label>
+              <input type="number" id="xp-stride" min="0" step="1">
+            </div>
+          </div>
+          <h3 class="xp-ledger-subheading">Intents</h3>
+          <div class="xp-intents-list" id="xp-intents-list"></div>
+          <p class="xp-intents-empty" id="xp-intents-empty">No intents allocated.</p>
+          <button type="button" class="btn btn-add" id="xp-intent-add">+ Add Intent</button>
+          <div class="xp-ledger-footer">
+            <div class="xp-ledger-stat">
+              <span class="xp-ledger-stat-label">Spent</span>
+              <span class="xp-ledger-stat-value" id="xp-ledger-spent">0</span>
+            </div>
+            <div class="xp-ledger-stat">
+              <span class="xp-ledger-stat-label">Total</span>
+              <span class="xp-ledger-stat-value" id="xp-ledger-total">0</span>
+            </div>
+            <div class="xp-ledger-stat">
+              <span class="xp-ledger-stat-label">Remaining</span>
+              <span class="xp-ledger-stat-value" id="xp-ledger-remaining">0</span>
+            </div>
+          </div>
+        </section>
+
+        <dialog class="app-dialog" id="xp-intent-dialog">
+          <form method="dialog" class="app-dialog-form">
+            <h3>Add Intent</h3>
+            <div class="field">
+              <label for="xp-intent-dialog-select">Intent</label>
+              <select id="xp-intent-dialog-select"></select>
+            </div>
+            <div class="field">
+              <label for="xp-intent-dialog-xp">XP</label>
+              <select id="xp-intent-dialog-xp" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="app-dialog-actions">
+              <button type="button" class="btn" id="xp-intent-dialog-cancel">Cancel</button>
+              <button type="submit" class="btn btn-accent" value="add">Add</button>
+            </div>
+          </form>
+        </dialog>
+
+      </div>
+    </div>
+
+    <div class="sheet-col">
+      <div class="sheet-stack">
+
+        <section class="sheet-section" id="section-armor">
+          <h2>Armor</h2>
+          <p class="armor-note">Edit the location label to rename for non-humanoid creatures.</p>
+          <div class="armor-list" id="armor-list"></div>
+        </section>
+
+        <section class="sheet-section" id="section-passives">
+          <h2>Passive Abilities</h2>
+          <div class="passive-list" id="passives-list"></div>
+          <p class="passive-empty" id="passives-empty">No passive abilities.</p>
+          <button type="button" class="btn btn-add" id="btn-add-passive">+ Add Passive</button>
+        </section>
+
+        <dialog class="app-dialog app-dialog-wide" id="passive-dialog">
+          <form method="dialog" class="app-dialog-form">
+            <h3 id="passive-dialog-title">Add Passive Ability</h3>
+            <div class="field" id="passive-dialog-name-row">
+              <label for="passive-dialog-name-select">Ability</label>
+              <select id="passive-dialog-name-select"></select>
+            </div>
+            <div class="field" id="passive-dialog-custom-wrap" hidden>
+              <label for="passive-dialog-name-custom">Custom name</label>
+              <input type="text" id="passive-dialog-name-custom" autocomplete="off">
+            </div>
+            <div id="passive-dialog-content"></div>
+            <div class="app-dialog-actions">
+              <button type="button" class="btn" id="passive-dialog-cancel">Cancel</button>
+              <button type="submit" class="btn btn-accent" id="passive-dialog-save" value="save">Add</button>
+            </div>
+          </form>
+        </dialog>
+
+      </div>
+    </div>
+
+    <div class="sheet-col">
+      <div class="sheet-stack">
+
+        <section class="sheet-section" id="section-abilities">
+          <h2>Active Abilities</h2>
+          <div class="ability-list" id="ability-list"></div>
+          <p class="ability-empty" id="ability-empty">No active abilities.</p>
+          <button type="button" class="btn btn-add" id="btn-add-ability">+ Add Ability</button>
+        </section>
+
+        <dialog class="app-dialog ability-dialog" id="ability-dialog">
+          <form method="dialog" class="app-dialog-form" id="ability-dialog-form">
+            <h3 id="ability-dialog-title">Add Active Ability</h3>
+
+            <div class="ability-top-fields">
+              <div class="field">
+                <label for="ability-dialog-name">Name</label>
+                <input type="text" id="ability-dialog-name" autocomplete="off" required>
+              </div>
+              <div class="field">
+                <label for="ability-dialog-polarity">Polarity</label>
+                <select id="ability-dialog-polarity"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ability-dialog-desc">Description</label>
+              <textarea id="ability-dialog-desc" rows="2" placeholder="What does this ability do?"></textarea>
+            </div>
+
+            <details class="ability-section" open>
+              <summary>Intents</summary>
+              <div class="ability-section-body">
+                <div class="ability-intents-grid" id="ability-intents-grid"></div>
+                <div class="ability-condition-section" id="ability-condition-section" hidden>
+                  <div class="ability-detail-header">
+                    <span class="ability-detail-label">Conditions applied</span>
+                    <button type="button" class="btn btn-sm" id="btn-add-condition">+ Add</button>
+                  </div>
+                  <div class="ability-condition-list" id="ability-condition-list"></div>
+                </div>
+                <p class="ability-intent-warning" id="ability-intent-warning" hidden></p>
+              </div>
+            </details>
+
+            <details class="ability-section" open>
+              <summary>Awareness</summary>
+              <div class="ability-section-body">
+                <div class="ability-radio-group" id="ability-awareness-states"></div>
+                <p class="ability-section-desc" id="ability-awareness-desc"></p>
+                <div class="ability-radio-group" id="ability-awareness-substates"></div>
+              </div>
+            </details>
+
+            <details class="ability-section" open>
+              <summary>Duration</summary>
+              <div class="ability-section-body">
+                <div class="ability-radio-group" id="ability-duration"></div>
+                <p class="ability-section-desc" id="ability-duration-desc"></p>
+              </div>
+            </details>
+
+            <div class="ability-cost-footer">
+              <span class="ability-cost-label">Strain Cost:</span>
+              <span class="ability-cost-value" id="ability-cost-value">0</span>
+              <div class="ability-footer-actions">
+                <button type="button" class="btn" id="ability-dialog-cancel">Cancel</button>
+                <button type="submit" class="btn btn-accent" id="ability-dialog-save" value="save">Add</button>
+              </div>
+            </div>
+          </form>
+        </dialog>
+
+        <section class="sheet-section" id="section-special-mechanics">
+          <h2>Special Mechanics</h2>
+          <p class="placeholder-note">Freeform rules that change how the creature interacts with the world.</p>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts load in dependency order. Schema has no dependencies.
+       FileIO depends on Schema. app.js depends on Schema and FileIO. -->
+  <script src="modules/schema.js"></script>
+  <script src="modules/fileIO.js"></script>
+  <script src="modules/header.js"></script>
+  <script src="modules/coreStats.js"></script>
+  <script src="modules/xpLedger.js"></script>
+  <script src="modules/armor.js"></script>
+  <script src="modules/passives.js"></script>
+  <script src="modules/abilities.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
