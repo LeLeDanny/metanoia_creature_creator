@@ -181,10 +181,28 @@ const FileIO = (() => {
       passiveAbilities: Array.isArray(creature.passiveAbilities)
         ? creature.passiveAbilities.map(function (p) { return Object.assign({ id: Schema.newId() }, p); })
         : [],
-      specialMechanics: typeof creature.specialMechanics === 'string' ? creature.specialMechanics : '',
+      tpme: normalizeTpme(creature.tpme, creature.specialMechanics),
     });
     delete migrated.polarities;
+    delete migrated.specialMechanics;
     return migrated;
+  }
+
+  // Structured TPME (Task, Purpose, Method, Endstate) replaces the older
+  // freeform specialMechanics string. When an older file is loaded the legacy
+  // string drops into Method so nothing written is silently lost.
+  function normalizeTpme(tpme, legacySpecialMechanics) {
+    const src = (tpme && typeof tpme === 'object') ? tpme : {};
+    const out = {
+      task:     typeof src.task     === 'string' ? src.task     : '',
+      purpose:  typeof src.purpose  === 'string' ? src.purpose  : '',
+      method:   typeof src.method   === 'string' ? src.method   : '',
+      endstate: typeof src.endstate === 'string' ? src.endstate : '',
+    };
+    if (!out.method && typeof legacySpecialMechanics === 'string' && legacySpecialMechanics.trim()) {
+      out.method = legacySpecialMechanics;
+    }
+    return out;
   }
 
   // ─── Clipboard ────────────────────────────────────────────
@@ -273,14 +291,24 @@ const FileIO = (() => {
     const abilities = buildAbilitiesBlock(creature);
     if (abilities) { parts.push(''); parts.push(abilities); }
 
-    const special = (creature.specialMechanics || '').trim();
-    if (special) {
-      parts.push('');
-      parts.push('### Special Mechanics');
-      parts.push(special);
-    }
+    const tpme = buildTpmeBlock(creature);
+    if (tpme) { parts.push(''); parts.push(tpme); }
 
     return parts.join('\n') + '\n';
+  }
+
+  function buildTpmeBlock(creature) {
+    const tpme = (creature && creature.tpme) || {};
+    const rows = [
+      ['Task',     (tpme.task     || '').trim()],
+      ['Purpose',  (tpme.purpose  || '').trim()],
+      ['Method',   (tpme.method   || '').trim()],
+      ['Endstate', (tpme.endstate || '').trim()],
+    ].filter(function (r) { return r[1]; });
+    if (rows.length === 0) return '';
+    const lines = ['### TPME'];
+    rows.forEach(function (r) { lines.push('**' + r[0] + ':** ' + r[1]); });
+    return lines.join('\n');
   }
 
   function buildCoreStatsTable(creature) {

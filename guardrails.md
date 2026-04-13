@@ -98,7 +98,7 @@ modules/
   armor.js              (per-location AS)
   passives.js           (passive abilities including Resistant and Vulnerability)
   abilities.js          (active and passive abilities)
-  specialMechanics.js   (freeform special rules text)
+  tpme.js               (Task / Purpose / Method / Endstate behavior framework)
   fileIO.js             (save / load / new / export markdown)
 ```
 

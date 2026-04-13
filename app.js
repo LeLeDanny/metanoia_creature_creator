@@ -183,6 +183,10 @@
       console.error('Abilities global is missing. Check script load order in index.html.');
       return;
     }
+    if (typeof Tpme === 'undefined') {
+      console.error('Tpme global is missing. Check script load order in index.html.');
+      return;
+    }
 
     FileIO.init(orchestrator);
     Header.init(orchestrator);
@@ -191,12 +195,14 @@
     Armor.init(orchestrator);
     Passives.init(orchestrator);
     Abilities.init(orchestrator);
+    Tpme.init(orchestrator);
     registerModule({ name: 'header',    render: Header.render,    read: Header.read });
     registerModule({ name: 'coreStats', render: CoreStats.render, read: CoreStats.read });
     registerModule({ name: 'xpLedger',  render: XpLedger.render,  read: XpLedger.read });
     registerModule({ name: 'armor',     render: Armor.render,     read: Armor.read });
     registerModule({ name: 'passives',  render: Passives.render,  read: Passives.read });
     registerModule({ name: 'abilities', render: Abilities.render, read: Abilities.read });
+    registerModule({ name: 'tpme',      render: Tpme.render,      read: Tpme.read });
 
     render();
   });

@@ -296,7 +296,12 @@ const Schema = (() => {
       },
       activeAbilities:  [],
       passiveAbilities: [],
-      specialMechanics: '',
+      tpme: {
+        task:     '',
+        purpose:  '',
+        method:   '',
+        endstate: '',
+      },
     };
   }
 

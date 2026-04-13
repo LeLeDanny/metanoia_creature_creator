@@ -286,9 +286,27 @@
           </form>
         </dialog>
 
-        <section class="sheet-section" id="section-special-mechanics">
-          <h2>Special Mechanics</h2>
-          <p class="placeholder-note">Freeform rules that change how the creature interacts with the world.</p>
+        <section class="sheet-section" id="section-tpme">
+          <h2>TPME</h2>
+          <p class="tpme-subtitle">Task, Purpose, Method, Endstate: the NPC's standing drive and how to play them. <a class="tpme-reference-link" href="https://www.youtube.com/watch?v=nEM7hrz_GTw" target="_blank" rel="noopener noreferrer">Reference video</a></p>
+          <div class="tpme-fields">
+            <div class="field field-wide">
+              <label for="tpme-task">Task</label>
+              <textarea id="tpme-task" rows="2" placeholder="What the NPC is after in life. e.g. Rule the eastern watchtowers."></textarea>
+            </div>
+            <div class="field field-wide">
+              <label for="tpme-purpose">Purpose</label>
+              <textarea id="tpme-purpose" rows="2" placeholder="In order to... e.g. In order to maintain her mother's legacy."></textarea>
+            </div>
+            <div class="field field-wide">
+              <label for="tpme-method">Method</label>
+              <textarea id="tpme-method" rows="4" placeholder="How they pursue the task. Always the easy way unless forced to the hard way. e.g. Prefers intimidation and alliances; resorts to violence only when cornered or when a rival shows public weakness."></textarea>
+            </div>
+            <div class="field field-wide">
+              <label for="tpme-endstate">Endstate</label>
+              <textarea id="tpme-endstate" rows="2" placeholder="What counts as success. e.g. The watchtowers obey her unchallenged."></textarea>
+            </div>
+          </div>
         </section>
 
       </div>
@@ -306,6 +324,7 @@
   <script src="modules/armor.js"></script>
   <script src="modules/passives.js"></script>
   <script src="modules/abilities.js"></script>
+  <script src="modules/tpme.js"></script>
   <script src="app.js"></script>
 
 </body>

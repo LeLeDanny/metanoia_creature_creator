@@ -883,6 +883,33 @@ label {
   gap: 0.5rem;
 }
 
+/* ─── TPME section ────────────────────────────────────────── */
+
+.tpme-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+
+.tpme-reference-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-style: normal;
+}
+
+.tpme-reference-link:hover,
+.tpme-reference-link:focus {
+  color: var(--color-accent-high);
+  text-decoration: underline;
+}
+
+.tpme-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem 0.75rem;
+}
+
 /* ─── Dialog ──────────────────────────────────────────────── */
 
 .app-dialog {

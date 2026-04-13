@@ -20,7 +20,7 @@ This document defines the structure of a creature `.json` file. Every field the 
   "armor": { ... },
   "activeAbilities": [ ... ],
   "passiveAbilities": [ ... ],
-  "specialMechanics": ""
+  "tpme": { "task": "", "purpose": "", "method": "", "endstate": "" }
 }
 ```
 
@@ -154,9 +154,29 @@ Mirrors the Character Sheet Application's passive ability model. Passives are dr
 
 ---
 
-## `specialMechanics`
+## `tpme`
 
-A single string. Markdown is allowed. For immunities, field effects, unique death behaviors, multiplication rules, and anything else that changes how players interact with the creature at a fundamental level.
+Behavior framework for how to play the NPC. Replaces the older freeform `specialMechanics` string; when an older file is loaded, the legacy string migrates into `tpme.method` so nothing written is lost.
+
+```json
+"tpme": {
+  "task":     "Rule the eastern watchtowers.",
+  "purpose":  "In order to maintain her mother's legacy.",
+  "method":   "Prefers intimidation and alliances; resorts to violence only when cornered or when a rival shows public weakness.",
+  "endstate": "The watchtowers obey her unchallenged."
+}
+```
+
+| Field | Type | Notes |
+|---|---|---|
+| `task` | string | What the NPC is after in life. A standing drive, not a single-scene objective. |
+| `purpose` | string | The "In order to..." behind the task. Motivation. |
+| `method` | string | How they pursue it. The NPC always takes the easy way unless forced onto the hard way; `method` captures the priorities they weigh. |
+| `endstate` | string | What counts as success; when the GM knows the task is achieved. |
+
+Rules content that changes how players *mechanically* interact with the creature (immunities, field effects, death behaviors) belongs on a passive ability, not in TPME. TPME is purely behavioral.
+
+Exported as a `### TPME` section with one bolded row per non-empty field. The whole section is omitted when all four fields are blank.
 
 ---
 
@@ -195,6 +215,6 @@ A "New Creature" produces this object:
   },
   "activeAbilities":  [],
   "passiveAbilities": [],
-  "specialMechanics": ""
+  "tpme":             { "task": "", "purpose": "", "method": "", "endstate": "" }
 }
 ```

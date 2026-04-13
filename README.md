@@ -41,7 +41,7 @@ Creature_Creator/
     armor.js        # Per-location Armor Strain
     passives.js     # Passive abilities (Resistant, Vulnerability, Custom, etc.)
     abilities.js    # Active and passive abilities
-    specialMechanics.js # Freeform special rules
+    tpme.js             # Task / Purpose / Method / Endstate behavior framework
     fileIO.js       # Save / load / new / export markdown
 ```
 

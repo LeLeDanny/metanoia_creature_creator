@@ -49,7 +49,7 @@ Key shape:
 - Resistances and vulnerabilities are modeled as `Resistant` / `Vulnerability` entries in `passiveAbilities` rather than a separate list
 - `activeAbilities`: array of ability objects mirroring the Character Sheet Application model (`intents[]`, `awarenessState`, `awarenessSubstate`, `duration`, `conditionDetails[]`, `polarity`); strain cost is derived, not stored
 - `passiveAbilities`: array of `{ name, level, notes }`; `name` is from `Schema.PASSIVE_ABILITIES` or the literal `"Custom"` for free-form passives
-- `specialMechanics`: free text string
+- `tpme`: `{ task, purpose, method, endstate }` — behavior framework that drives how the NPC acts (replaces the older freeform `specialMechanics` string)
 
 Derived values (Strain Max, Stride, wound slot default, intent level, intent die, XP spent, XP remaining, active ability strain cost) are computed by the module that renders them, never persisted.
 
@@ -65,7 +65,7 @@ Structural frame with no creature data yet.
 - Saira font loaded from Google Fonts
 - Dark/light mode toggle, defaulting to dark, respecting OS preference, persisted to localStorage
 - Header with app brand, theme toggle, and unwired New / Open / Save / Export buttons (wired in Step 3)
-- Placeholder sections (empty, labeled) for Header, Core Stats, XP Ledger, Capability Dice, Armor, Resistances, Abilities, Special Mechanics
+- Placeholder sections (empty, labeled) for Header, Core Stats, XP Ledger, Capability Dice, Armor, Resistances, Abilities, TPME
 - Three-column desktop layout that collapses to two columns below 1100px and one column below 720px
 
 ---
@@ -229,16 +229,21 @@ Passive abilities have their own section (step 9). This section is active-only a
 
 ---
 
-### 11. Special Mechanics
+### 11. TPME
 
-**Status:** `planned`
+**Status:** `done`
 
-Rules that fundamentally change how players interact with this creature.
+A behavior framework that tells the GM (and any AI running the creature) what the NPC is after and how to play them. Replaces the older freeform `specialMechanics` field.
 
-- Single large text area
-- For immunities, field effects, unique death behaviors, multiplication rules, etc.
-- Not for standard ability descriptions (those go in Abilities)
-- Exported as a freeform section at the bottom of the stat block
+- Owned by `modules/tpme.js`
+- Four textareas, stored as `tpme: { task, purpose, method, endstate }`:
+  - **Task** — what the NPC is after in life (a standing drive, not a single-scene objective)
+  - **Purpose** — the "In order to..." behind the task
+  - **Method** — how they pursue it; default to the easy path unless forced to the hard path, with priorities the NPC weighs
+  - **Endstate** — what counts as success
+- Loaded JSON migrates by moving any legacy `specialMechanics` string into `tpme.method` so no written text is lost
+- Exported as a `### TPME` section with one bolded row per non-empty field (e.g. `**Task:** ...`); the whole block is omitted when all four fields are blank
+- Rules-that-change-the-game content (immunities, death behaviors, field effects) belongs on a passive ability, not here
 
 ---
 
