@@ -63,7 +63,6 @@ const Schema = (() => {
       substates: {
         aura: { label: 'Aura', strain: 1, description: 'Radial field around you' },
       },
-      allowedIntents: ['harm', 'guard', 'move', 'displace', 'heal', 'recover', 'condition', 'hide', 'know', 'convince'],
     },
     focused: {
       label: 'Focused',

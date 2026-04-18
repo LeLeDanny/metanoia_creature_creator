@@ -222,7 +222,7 @@ Passive abilities have their own section (step 9). This section is active-only a
 - `+ Add Ability` opens a dialog with collapsible Intents / Awareness / Duration sections; strain cost displays live in the footer
 - Polarity dropdown is populated from `header.polarities`; `castX` is excluded from the creature creator intent grid
 - Condition details appear as free-text rows when the `condition` intent is selected; each entry adds +1 strain (minimum 1)
-- Awareness state changes rebuild the substate radios; `extended` awareness disables intents outside its `allowedIntents` list with a warning when one is selected
+- Awareness state changes rebuild the substate radios; all intents are available for all awareness states
 - Cards in the list render name, polarity · intents · substate · duration summary, description preview, and derived strain cost; the row is click-to-edit with a remove button
 - Strain cost is derived via `Schema.calcAbilityStrainCost` and never stored
 - Exported as a `### Active Abilities` block with one entry per ability: `**Name** (X Strain) _Polarity · Substate · Duration_: Description [Intent labels]`

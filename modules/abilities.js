@@ -34,6 +34,7 @@ const Abilities = (() => {
   let durEl          = null;
   let durDescEl      = null;
   let costValueEl    = null;
+  let freeTagEl      = null;
   let intentWarnEl   = null;
 
   // ─── Public API ───────────────────────────────────────────
@@ -62,6 +63,7 @@ const Abilities = (() => {
     durEl          = document.getElementById('ability-duration');
     durDescEl      = document.getElementById('ability-duration-desc');
     costValueEl    = document.getElementById('ability-cost-value');
+    freeTagEl      = document.getElementById('ability-free-tag');
     intentWarnEl   = document.getElementById('ability-intent-warning');
 
     buildStaticDialogContent();
@@ -146,9 +148,18 @@ const Abilities = (() => {
     row.appendChild(info);
 
     const cost = Schema.calcAbilityStrainCost(ability);
+    const creature = _orchestrator ? _orchestrator.getCreature() : {};
+    const realm = ((creature.header) || {}).realm || 0;
+    const isFree = cost > 0 && cost <= realm;
+
     const costBadge = document.createElement('span');
     costBadge.className = 'ability-row-cost';
-    costBadge.textContent = cost + ' Strain';
+    if (isFree) {
+      costBadge.textContent = 'Free';
+      costBadge.classList.add('ability-row-free');
+    } else {
+      costBadge.textContent = cost + ' Strain';
+    }
     row.appendChild(costBadge);
 
     const removeBtn = document.createElement('button');
@@ -458,34 +469,31 @@ const Abilities = (() => {
   }
 
   function updateIntentValidation() {
-    const stateRadio = document.querySelector('input[name="ability-aw-state"]:checked');
-    const stateKey = stateRadio ? stateRadio.value : 'suppressed';
-    const stateDef = Schema.ABILITY_AWARENESS[stateKey];
-    const allowed  = (stateDef && stateDef.allowedIntents) || null;
-    let hasInvalid = false;
-
+    // No intent constraints; all intents are available for all awareness states.
     document.querySelectorAll('.ability-intent-check').forEach(function (cb) {
       const label = cb.closest('.ability-intent-label');
-      if (!label) return;
-      if (allowed && allowed.indexOf(cb.value) === -1) {
-        label.classList.add('ability-intent-disabled');
-        if (cb.checked) hasInvalid = true;
-      } else {
-        label.classList.remove('ability-intent-disabled');
-      }
+      if (label) label.classList.remove('ability-intent-disabled');
     });
-
     if (intentWarnEl) {
-      intentWarnEl.textContent = hasInvalid
-        ? stateDef.label + ' awareness does not support the selected intent(s).'
-        : '';
-      intentWarnEl.hidden = !hasInvalid;
+      intentWarnEl.textContent = '';
+      intentWarnEl.hidden = true;
     }
   }
 
   function updateStrainCost() {
     if (!costValueEl) return;
-    costValueEl.textContent = String(Schema.calcAbilityStrainCost(readDialog()));
+    var cost = Schema.calcAbilityStrainCost(readDialog());
+    costValueEl.textContent = String(cost);
+    var creature = _orchestrator ? _orchestrator.getCreature() : {};
+    var realm = ((creature.header) || {}).realm || 0;
+    if (freeTagEl) {
+      if (cost > 0 && cost <= realm) {
+        freeTagEl.textContent = 'Free at Realm ' + realm;
+        freeTagEl.hidden = false;
+      } else {
+        freeTagEl.hidden = true;
+      }
+    }
   }
 
   // ─── Condition details ────────────────────────────────────

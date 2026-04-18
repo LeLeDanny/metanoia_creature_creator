@@ -657,6 +657,12 @@ label {
   white-space: nowrap;
 }
 
+.ability-row-cost.ability-row-free {
+  color: var(--color-accent);
+  background: var(--color-accent-low);
+  border-color: var(--color-accent);
+}
+
 .ability-empty {
   font-size: 0.8rem;
   color: var(--color-text-muted);
@@ -875,6 +881,15 @@ label {
   font-weight: 700;
   font-style: italic;
   color: var(--color-accent-high);
+}
+
+.ability-free-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  background: var(--color-accent-low);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
 }
 
 .ability-footer-actions {
