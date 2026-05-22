@@ -33,9 +33,11 @@ const Abilities = (() => {
   let awDescEl       = null;
   let durEl          = null;
   let durDescEl      = null;
-  let costValueEl    = null;
-  let freeTagEl      = null;
-  let intentWarnEl   = null;
+  let costValueEl       = null;
+  let freeTagEl         = null;
+  let intentWarnEl      = null;
+  let restrictionListEl = null;
+  let addRestrictionBtn = null;
 
   // ─── Public API ───────────────────────────────────────────
 
@@ -62,9 +64,11 @@ const Abilities = (() => {
     awDescEl       = document.getElementById('ability-awareness-desc');
     durEl          = document.getElementById('ability-duration');
     durDescEl      = document.getElementById('ability-duration-desc');
-    costValueEl    = document.getElementById('ability-cost-value');
-    freeTagEl      = document.getElementById('ability-free-tag');
-    intentWarnEl   = document.getElementById('ability-intent-warning');
+    costValueEl       = document.getElementById('ability-cost-value');
+    freeTagEl         = document.getElementById('ability-free-tag');
+    intentWarnEl      = document.getElementById('ability-intent-warning');
+    restrictionListEl = document.getElementById('ability-restriction-list');
+    addRestrictionBtn = document.getElementById('btn-add-restriction');
 
     buildStaticDialogContent();
 
@@ -75,9 +79,12 @@ const Abilities = (() => {
     if (dialogEl)        dialogEl.addEventListener('close', onDialogClose);
     if (listEl)          listEl.addEventListener('click', onListClick);
     if (listEl)          listEl.addEventListener('keydown', onListKeydown);
-    if (addConditionBtn) addConditionBtn.addEventListener('click', onAddCondition);
-    if (conditionListEl) conditionListEl.addEventListener('click', onConditionListClick);
-    if (conditionListEl) conditionListEl.addEventListener('input', onAnyDialogInput);
+    if (addConditionBtn)  addConditionBtn.addEventListener('click', onAddCondition);
+    if (conditionListEl)  conditionListEl.addEventListener('click', onConditionListClick);
+    if (conditionListEl)  conditionListEl.addEventListener('input', onAnyDialogInput);
+    if (addRestrictionBtn) addRestrictionBtn.addEventListener('click', onAddRestriction);
+    if (restrictionListEl) restrictionListEl.addEventListener('click', onRestrictionListClick);
+    if (restrictionListEl) restrictionListEl.addEventListener('input', onAnyDialogInput);
 
     if (intentsGridEl)  intentsGridEl.addEventListener('change', onIntentsChange);
     if (awStatesEl)     awStatesEl.addEventListener('change', onAwarenessStateChange);
@@ -191,6 +198,9 @@ const Abilities = (() => {
 
     const dur = Schema.DURATIONS[ability.duration];
     if (dur && ability.duration && ability.duration !== 'instant') parts.push(dur.label);
+
+    const rCount = (ability.restrictions || []).length;
+    if (rCount) parts.push(rCount === 1 ? '1 Restriction' : rCount + ' Restrictions');
 
     return parts.join(' \u00b7 ');
   }
@@ -306,7 +316,7 @@ const Abilities = (() => {
       name: '', polarity: '', description: '',
       intents: [], awarenessState: 'suppressed',
       awarenessSubstate: 'touch', duration: 'instant',
-      conditionDetails: [],
+      conditionDetails: [], restrictions: [],
     });
     showDialog();
   }
@@ -339,6 +349,7 @@ const Abilities = (() => {
     if (durRadio) durRadio.checked = true;
 
     renderConditionList(data.conditionDetails || []);
+    renderRestrictionList(data.restrictions || []);
     updateConditionSectionVisibility();
     updateAwDescription();
     updateDurDescription();
@@ -401,6 +412,7 @@ const Abilities = (() => {
       awarenessSubstate: subRadio ? subRadio.value : 'touch',
       duration:          durRadio ? durRadio.value : 'instant',
       conditionDetails:  readConditionList(),
+      restrictions:      readRestrictionList(),
     };
   }
 
@@ -558,6 +570,61 @@ const Abilities = (() => {
       if (conditionListEl && !conditionListEl.querySelector('.ability-condition-item')) {
         conditionListEl.appendChild(buildConditionItem(''));
       }
+      updateStrainCost();
+    }
+  }
+
+  // ─── Restriction details ──────────────────────────────────
+
+  function renderRestrictionList(values) {
+    if (!restrictionListEl) return;
+    restrictionListEl.innerHTML = '';
+    (values || []).forEach(function (v) {
+      if (v) restrictionListEl.appendChild(buildRestrictionItem(v));
+    });
+  }
+
+  function buildRestrictionItem(value) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ability-restriction-item';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'ability-restriction-input';
+    input.placeholder = 'e.g. Target must have a condition';
+    input.value = value || '';
+    wrap.appendChild(input);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-icon-remove ability-restriction-remove';
+    removeBtn.textContent = '×';
+    removeBtn.setAttribute('aria-label', 'Remove restriction');
+    wrap.appendChild(removeBtn);
+
+    return wrap;
+  }
+
+  function readRestrictionList() {
+    if (!restrictionListEl) return [];
+    const out = [];
+    restrictionListEl.querySelectorAll('.ability-restriction-input').forEach(function (inp) {
+      const v = (inp.value || '').trim();
+      if (v) out.push(v);
+    });
+    return out;
+  }
+
+  function onAddRestriction() {
+    if (!restrictionListEl) return;
+    restrictionListEl.appendChild(buildRestrictionItem(''));
+    updateStrainCost();
+  }
+
+  function onRestrictionListClick(e) {
+    if (e.target.closest('.ability-restriction-remove')) {
+      const item = e.target.closest('.ability-restriction-item');
+      if (item) item.remove();
       updateStrainCost();
     }
   }

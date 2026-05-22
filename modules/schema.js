@@ -210,7 +210,8 @@ const Schema = (() => {
     const substate = state && state.substates[ability.awarenessSubstate];
     const awarenessStrain = substate ? substate.strain : 0;
     const durationStrain  = (DURATIONS[ability.duration] || {}).strain || 0;
-    return intentStrain + awarenessStrain + durationStrain;
+    const restrictionDiscount = (ability.restrictions || []).length;
+    return Math.max(0, intentStrain + awarenessStrain + durationStrain - restrictionDiscount);
   }
 
   function calcIntentsXpTotal(intentsMap) {
