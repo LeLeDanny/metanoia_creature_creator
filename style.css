@@ -854,10 +854,18 @@ label {
 }
 
 .ability-condition-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  flex-direction: row;
   gap: 0.4rem;
   align-items: center;
+}
+
+.ability-condition-select,
+.ability-condition-polarity-select,
+.ability-condition-variant {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.78rem;
 }
 
 .ability-cost-footer {

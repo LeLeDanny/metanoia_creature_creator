@@ -81,6 +81,7 @@ const Abilities = (() => {
     if (listEl)          listEl.addEventListener('keydown', onListKeydown);
     if (addConditionBtn)  addConditionBtn.addEventListener('click', onAddCondition);
     if (conditionListEl)  conditionListEl.addEventListener('click', onConditionListClick);
+    if (conditionListEl)  conditionListEl.addEventListener('change', onConditionSelectChange);
     if (conditionListEl)  conditionListEl.addEventListener('input', onAnyDialogInput);
     if (addRestrictionBtn) addRestrictionBtn.addEventListener('click', onAddRestriction);
     if (restrictionListEl) restrictionListEl.addEventListener('click', onRestrictionListClick);
@@ -90,7 +91,7 @@ const Abilities = (() => {
     if (awStatesEl)     awStatesEl.addEventListener('change', onAwarenessStateChange);
     if (awSubstatesEl)  awSubstatesEl.addEventListener('change', onAnyDialogInput);
     if (durEl)          durEl.addEventListener('change', onDurationChange);
-    if (polarityEl)     polarityEl.addEventListener('change', onAnyDialogInput);
+    if (polarityEl)     polarityEl.addEventListener('change', onPolarityChange);
   }
 
   function render(creature) {
@@ -157,7 +158,7 @@ const Abilities = (() => {
     const cost = Schema.calcAbilityStrainCost(ability);
     const creature = _orchestrator ? _orchestrator.getCreature() : {};
     const realm = ((creature.header) || {}).realm || 0;
-    const isFree = cost > 0 && cost <= realm;
+    const isFree = cost > 0 && cost < realm;
 
     const costBadge = document.createElement('span');
     costBadge.className = 'ability-row-cost';
@@ -186,7 +187,15 @@ const Abilities = (() => {
     const intentLabels = (ability.intents || []).map(function (key) {
       if (key === 'condition') {
         const details = (ability.conditionDetails || []).filter(Boolean);
-        return 'Condition [' + (details.length ? details.join(', ') : 'X') + ']';
+        const labels = details.map(function (c) {
+          if (!c || typeof c === 'string') return c || '';
+          const def = Schema.CONDITIONS[c.type];
+          const base = def ? def.label : c.type;
+          if (c.variant && c.variant2) return base + ' [' + c.variant + ' → ' + c.variant2 + ']';
+          if (c.variant) return base + ' [' + c.variant + ']';
+          return base;
+        }).filter(Boolean);
+        return 'Condition [' + (labels.length ? labels.join(', ') : 'X') + ']';
       }
       return (Schema.INTENTS[key] && Schema.INTENTS[key].label) || key;
     });
@@ -499,7 +508,7 @@ const Abilities = (() => {
     var creature = _orchestrator ? _orchestrator.getCreature() : {};
     var realm = ((creature.header) || {}).realm || 0;
     if (freeTagEl) {
-      if (cost > 0 && cost <= realm) {
+      if (cost > 0 && cost < realm) {
         freeTagEl.textContent = 'Free at Realm ' + realm;
         freeTagEl.hidden = false;
       } else {
@@ -515,7 +524,7 @@ const Abilities = (() => {
     const conditionChecked = !!document.querySelector('.ability-intent-check[value="condition"]:checked');
     conditionSecEl.hidden = !conditionChecked;
     if (conditionChecked && conditionListEl && !conditionListEl.querySelector('.ability-condition-item')) {
-      conditionListEl.appendChild(buildConditionItem(''));
+      conditionListEl.appendChild(buildConditionItem(null, getDialogPolarities()));
     }
   }
 
@@ -523,19 +532,81 @@ const Abilities = (() => {
     if (!conditionListEl) return;
     conditionListEl.innerHTML = '';
     const vals = (values && values.length) ? values : [];
-    vals.forEach(function (v) { conditionListEl.appendChild(buildConditionItem(v)); });
+    vals.forEach(function (v) {
+      const data = (v && typeof v === 'object') ? v : null;
+      conditionListEl.appendChild(buildConditionItem(data));
+    });
   }
 
-  function buildConditionItem(value) {
+  function getDialogPolarities() {
+    const creature = _orchestrator ? _orchestrator.getCreature() : {};
+    return ((creature.header && creature.header.polarities) || [])
+      .map(function(p) { return p && p.name ? String(p.name).trim() : ''; })
+      .filter(Boolean);
+  }
+
+  function buildPolaritySelect(value, polarities, placeholder) {
+    const sel = document.createElement('select');
+    sel.className = 'ability-condition-polarity-select';
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = placeholder ? '— ' + placeholder + ' —' : '— select polarity —';
+    sel.appendChild(blank);
+    polarities.forEach(function(p) {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      if (p === value) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+
+  function appendConditionVariants(item, condDef, data, polarities) {
+    item.querySelectorAll('.ability-condition-detail').forEach(function(el) { el.remove(); });
+    if (!condDef.hasDetail) return;
+    const count   = condDef.detailCount || 1;
+    const values  = [data && data.variant || '', data && data.variant2 || ''];
+    const labels  = condDef.detailPlaceholders || [condDef.detailPlaceholder || ''];
+    const removeBtn = item.lastElementChild;
+    for (let i = 0; i < count; i++) {
+      let el;
+      if (condDef.detailType === 'polarity') {
+        el = buildPolaritySelect(values[i], polarities, labels[i] || '');
+      } else {
+        el = document.createElement('input');
+        el.type = 'text';
+        el.className = 'ability-condition-variant';
+        el.placeholder = labels[i] || '';
+        el.value = values[i];
+      }
+      el.classList.add('ability-condition-detail');
+      item.insertBefore(el, removeBtn);
+    }
+  }
+
+  function buildConditionItem(data, polarities) {
+    const type    = (data && data.type) || Object.keys(Schema.CONDITIONS)[0];
+    const condDef = Schema.CONDITIONS[type] || {};
+    const currentPolarity = polarityEl ? polarityEl.value : '';
+    const pols = polarities || getDialogPolarities();
+
     const wrap = document.createElement('div');
     wrap.className = 'ability-condition-item';
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'ability-condition-input';
-    input.placeholder = 'e.g. Burning';
-    input.value = value || '';
-    wrap.appendChild(input);
+    const select = document.createElement('select');
+    select.className = 'ability-condition-select';
+    Object.keys(Schema.CONDITIONS).forEach(function(key) {
+      const def = Schema.CONDITIONS[key];
+      const opt = document.createElement('option');
+      opt.value = key;
+      const labelText = def.label + ' (' + def.strain + ')';
+      opt.textContent = def.description ? labelText + ' — ' + def.description : labelText;
+      if (def.requiresPolarity && currentPolarity.toLowerCase() !== def.requiresPolarity.toLowerCase()) opt.disabled = true;
+      if (key === type) opt.selected = true;
+      select.appendChild(opt);
+    });
+    wrap.appendChild(select);
 
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
@@ -544,22 +615,69 @@ const Abilities = (() => {
     removeBtn.setAttribute('aria-label', 'Remove condition');
     wrap.appendChild(removeBtn);
 
+    appendConditionVariants(wrap, condDef, data, pols);
     return wrap;
   }
 
   function readConditionList() {
     if (!conditionListEl) return [];
     const out = [];
-    conditionListEl.querySelectorAll('.ability-condition-input').forEach(function (inp) {
-      const v = (inp.value || '').trim();
-      if (v) out.push(v);
+    conditionListEl.querySelectorAll('.ability-condition-item').forEach(function (item) {
+      const select = item.querySelector('.ability-condition-select');
+      if (!select) return;
+      const condDef = Schema.CONDITIONS[select.value] || {};
+      const details = item.querySelectorAll('.ability-condition-detail');
+      const entry = { type: select.value, variant: details[0] ? details[0].value.trim() : '' };
+      if (condDef.detailCount >= 2 && details[1]) entry.variant2 = details[1].value.trim();
+      out.push(entry);
     });
     return out;
   }
 
   function onAddCondition() {
     if (!conditionListEl) return;
-    conditionListEl.appendChild(buildConditionItem(''));
+    conditionListEl.appendChild(buildConditionItem(null, getDialogPolarities()));
+    updateStrainCost();
+  }
+
+  function onPolarityChange() {
+    refreshConditionPolarityRestrictions();
+    onAnyDialogInput();
+  }
+
+  function refreshConditionPolarityRestrictions() {
+    if (!conditionListEl) return;
+    const polarity = polarityEl ? polarityEl.value : '';
+    conditionListEl.querySelectorAll('.ability-condition-select').forEach(function(sel) {
+      let needsReset = false;
+      Array.from(sel.options).forEach(function(opt) {
+        const def = Schema.CONDITIONS[opt.value];
+        if (def && def.requiresPolarity) {
+          opt.disabled = polarity.toLowerCase() !== def.requiresPolarity.toLowerCase();
+          if (opt.selected && opt.disabled) needsReset = true;
+        }
+      });
+      if (needsReset) {
+        for (let i = 0; i < sel.options.length; i++) {
+          if (!sel.options[i].disabled) { sel.selectedIndex = i; break; }
+        }
+        const item = sel.closest('.ability-condition-item');
+        const variantInput = item && item.querySelector('.ability-condition-variant');
+        if (variantInput) {
+          const def = Schema.CONDITIONS[sel.value] || {};
+          variantInput.hidden = !def.hasDetail;
+          variantInput.placeholder = def.detailPlaceholder || '';
+          if (!def.hasDetail) variantInput.value = '';
+        }
+      }
+    });
+  }
+
+  function onConditionSelectChange(e) {
+    if (!e.target.classList.contains('ability-condition-select')) return;
+    const condDef = Schema.CONDITIONS[e.target.value] || {};
+    const item = e.target.closest('.ability-condition-item');
+    if (item) appendConditionVariants(item, condDef, null, getDialogPolarities());
     updateStrainCost();
   }
 
@@ -568,7 +686,7 @@ const Abilities = (() => {
       const item = e.target.closest('.ability-condition-item');
       if (item) item.remove();
       if (conditionListEl && !conditionListEl.querySelector('.ability-condition-item')) {
-        conditionListEl.appendChild(buildConditionItem(''));
+        conditionListEl.appendChild(buildConditionItem(null, getDialogPolarities()));
       }
       updateStrainCost();
     }

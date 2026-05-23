@@ -28,6 +28,20 @@ const Schema = (() => {
     center: 'Center',
   };
 
+  const CONDITIONS = {
+    weakened:           { label: 'Weakened',            strain: 1, hasDetail: false, description: 'Enemy die steps down by strain value' },
+    maimed:             { label: 'Maimed',              strain: 1, hasDetail: false, description: 'Disables abilities equal to strain value' },
+    escalating:         { label: 'Escalating',          strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Burning, Bleeding', description: 'Loses strain equal to condition value each round' },
+    sensoryDeprivation: { label: 'Sensory Deprivation', strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Sight, Hearing',   description: 'Blocks senses equal to strain value; rolls using blocked senses lose a die' },
+    slowed:             { label: 'Slowed',              strain: 1, hasDetail: false, description: 'Stride reduced by strain value' },
+    elevated:           { label: 'Elevated',            strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Harm rolls',       description: 'One die steps up on the specified roll type' },
+    unimpeded:          { label: 'Unimpeded',           strain: 1, hasDetail: false, description: 'Ignore terrain effects that reduce Stride' },
+    hastened:               { label: 'Hastened',               strain: 1, hasDetail: false, description: 'Movement speed doubled' },
+    polarityEmpowered:      { label: 'Polarity Empowered',      strain: 2, hasDetail: true, detailType: 'polarity', detailCount: 1, detailPlaceholders: ['Polarity'],                                    description: 'Named polarity die steps up' },
+    polarityHarmonization:  { label: 'Polarity Harmonization',  strain: 3, hasDetail: true, detailType: 'polarity', detailCount: 2, detailPlaceholders: ['Designated polarity', 'Related polarity'],    description: 'Using the designated polarity lets you use the related polarity for free', requiresPolarity: 'Harmony' },
+    custom:                 { label: 'Custom',                  strain: 1, hasDetail: true,  detailPlaceholder: 'Condition name',         description: 'A custom condition' },
+  };
+
   const INTENTS = {
     harm:      { label: 'Harm',          strain: 1, description: 'Deal damage' },
     guard:     { label: 'Guard',         strain: 2, description: 'Protect against an effect, absorb damage' },
@@ -201,8 +215,14 @@ const Schema = (() => {
     const intents = ability.intents || [];
     const intentStrain = intents.reduce(function(sum, key) {
       if (key === 'condition') {
-        const count = (ability.conditionDetails || []).length;
-        return sum + Math.max(1, count);
+        const details = ability.conditionDetails || [];
+        if (!details.length) return sum + 1;
+        const condStrain = details.reduce(function(s, c) {
+          const type = (c && typeof c === 'object') ? c.type : null;
+          const def = type ? CONDITIONS[type] : null;
+          return s + (def != null ? def.strain : 1);
+        }, 0);
+        return sum + Math.max(1, condStrain);
       }
       return sum + ((INTENTS[key] || {}).strain || 0);
     }, 0);
@@ -310,7 +330,7 @@ const Schema = (() => {
   return {
     APP_VERSION, SCHEMA_VERSION,
     CATEGORIES, REALM_NAMES, HIT_LOCATIONS, HIT_LOCATION_LABELS,
-    INTENTS, ABILITY_AWARENESS, DURATIONS, DAMAGE_TYPES, PASSIVE_ABILITIES,
+    CONDITIONS, INTENTS, ABILITY_AWARENESS, DURATIONS, DAMAGE_TYPES, PASSIVE_ABILITIES,
     CAPABILITY_DIE_LADDER,
     calcStrainMax, calcStride, calcWoundSlotsDefault, calcWoundSlots,
     calcIntentLevel, calcIntentDie, calcAbilityStrainCost,
