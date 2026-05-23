@@ -81,8 +81,8 @@ const Schema = (() => {
   const DURATIONS = {
     instant:    { label: 'Instant',    strain: 0, description: 'Resolves immediately. One round of action, a single swing, a single moment.' },
     charged:    { label: 'Charged',    strain: 1, description: 'Lies dormant until triggered, activates once, then disappears.' },
-    sustained:  { label: 'Sustained',  strain: 1, description: 'Lasts a frame. A tavern negotiation, a battle, a chase through the streets.' },
-    persistent: { label: 'Persistent', strain: 2, description: 'Lasts across multiple scenes, a stretch of travel, or longer.' },
+    sustained:  { label: 'Sustained',  strain: 2, description: 'Lasts a frame. A tavern negotiation, a battle, a chase through the streets.' },
+    persistent: { label: 'Persistent', strain: 3, description: 'Lasts across multiple scenes, a stretch of travel, or longer.' },
     permanent:  { label: 'Permanent',  strain: 4, description: 'Until destroyed or dispelled. Outlasts the caster.' },
   };
 
