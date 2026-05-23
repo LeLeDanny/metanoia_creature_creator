@@ -37,8 +37,14 @@ const Schema = (() => {
     elevated:           { label: 'Elevated',            strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Harm rolls',       description: 'One die steps up on the specified roll type' },
     unimpeded:          { label: 'Unimpeded',           strain: 1, hasDetail: false, description: 'Ignore terrain effects that reduce Stride' },
     hastened:               { label: 'Hastened',               strain: 1, hasDetail: false, description: 'Movement speed doubled' },
-    polarityEmpowered:      { label: 'Polarity Empowered',      strain: 2, hasDetail: true, detailType: 'polarity', detailCount: 1, detailPlaceholders: ['Polarity'],                                    description: 'Named polarity die steps up' },
+    polarityEmpowered:      { label: 'Polarity Empowered',      strain: 2, hasDetail: false, description: 'One polarity die of your choice steps up (chosen at play time)', requiresPolarity: 'Influence' },
     polarityHarmonization:  { label: 'Polarity Harmonization',  strain: 3, hasDetail: true, detailType: 'polarity', detailCount: 2, detailPlaceholders: ['Designated polarity', 'Related polarity'],    description: 'Using the designated polarity lets you use the related polarity for free', requiresPolarity: 'Harmony' },
+    sealPolarity:           { label: 'Seal Polarity',           strain: 2, hasDetail: true,  detailPlaceholder: 'e.g. Heat',  description: 'Target cannot use the named polarity', requiresPolarity: 'Coalescence' },
+    converted:              { label: 'Converted',               strain: 1, hasDetail: false,                                  description: 'Seal one of your polarities (chosen at play time); complications on your rolls are treated as boons while active', requiresPolarity: 'Conversion' },
+    fluidity:               { label: 'Fluidity',                strain: 1, hasDetail: false,                                  description: 'Null hits grant +1 success on your next action', requiresPolarity: 'Flux' },
+    rebounding:             { label: 'Rebounding',              strain: 2, hasDetail: false,                                  description: 'For every 2 strain taken from outside sources, regain 1 strain', requiresPolarity: 'Elasticity' },
+    momentum:               { label: 'Momentum',                strain: 1, hasDetail: false,                                  description: 'A success accumulates from every successful roll and can be spent at any time while this condition is maintained', requiresPolarity: 'Recurrence' },
+    unified:                { label: 'Unified',                 strain: 4, hasDetail: false,                                  description: 'Gain access to one polarity of your choice (chosen at play time) while this condition is maintained', requiresPolarity: 'Emergence' },
     custom:                 { label: 'Custom',                  strain: 1, hasDetail: true,  detailPlaceholder: 'Condition name',         description: 'A custom condition' },
   };
 
