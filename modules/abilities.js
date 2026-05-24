@@ -363,6 +363,7 @@ const Abilities = (() => {
     updateAwDescription();
     updateDurDescription();
     updateIntentValidation();
+    updatePermanentAvailability();
     updateStrainCost();
   }
 
@@ -434,6 +435,7 @@ const Abilities = (() => {
   function onIntentsChange() {
     updateConditionSectionVisibility();
     updateIntentValidation();
+    updatePermanentAvailability();
     updateStrainCost();
   }
 
@@ -498,6 +500,24 @@ const Abilities = (() => {
     if (intentWarnEl) {
       intentWarnEl.textContent = '';
       intentWarnEl.hidden = true;
+    }
+  }
+
+  function updatePermanentAvailability() {
+    let hasCreateOrManifest = false;
+    document.querySelectorAll('.ability-intent-check:checked').forEach(function (cb) {
+      if (cb.value === 'create' || cb.value === 'manifest') hasCreateOrManifest = true;
+    });
+    const permRadio = document.querySelector('input[name="ability-dur"][value="permanent"]');
+    if (!permRadio) return;
+    permRadio.disabled = !hasCreateOrManifest;
+    const permLabel = permRadio.closest('.ability-radio-label');
+    if (permLabel) permLabel.classList.toggle('ability-intent-disabled', !hasCreateOrManifest);
+    if (!hasCreateOrManifest && permRadio.checked) {
+      const persRadio = document.querySelector('input[name="ability-dur"][value="persistent"]');
+      if (persRadio) persRadio.checked = true;
+      updateDurDescription();
+      updateStrainCost();
     }
   }
 
