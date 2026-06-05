@@ -32,6 +32,7 @@ const Schema = (() => {
     weakened:           { label: 'Weakened',            strain: 1, hasDetail: false, description: 'Enemy die steps down by strain value' },
     maimed:             { label: 'Maimed',              strain: 1, hasDetail: false, description: 'Disables abilities equal to strain value' },
     escalating:         { label: 'Escalating',          strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Burning, Bleeding', description: 'Loses strain equal to condition value each round' },
+    hemorrhaging:       { label: 'Hemorrhaging',        strain: 3, hasDetail: false, description: 'Every 2 turns, take a wound of severity equal to the condition value' },
     sensoryDeprivation: { label: 'Sensory Deprivation', strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Sight, Hearing',   description: 'Blocks senses equal to strain value; rolls using blocked senses lose a die' },
     slowed:             { label: 'Slowed',              strain: 1, hasDetail: false, description: 'Stride reduced by strain value' },
     elevated:           { label: 'Elevated',            strain: 1, hasDetail: true,  detailPlaceholder: 'e.g. Harm rolls',       description: 'One die steps up on the specified roll type' },
